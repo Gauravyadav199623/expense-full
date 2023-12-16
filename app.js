@@ -29,6 +29,17 @@ app.post('/post-expense', async(req,res,next)=>{
     // }
     res.status(201).json({expenseAdded:data})
 })
+app.post('/login',async(req,res,next)=>{
+    console.log(req.body)
+    const email=req.body.email;
+    const password=req.body.password;
+    let user=await ExpenseUser.findOne({where:{email:email}})
+    if (user) {
+        res.status(200).json({ user });
+      } else {
+        res.status(404).json({ error: "user not found" });
+      }
+})
 
 
 sequelize
