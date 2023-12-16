@@ -30,12 +30,21 @@ app.post('/post-expense', async(req,res,next)=>{
     res.status(201).json({expenseAdded:data})
 })
 app.post('/login',async(req,res,next)=>{
-    console.log(req.body)
+    console.log(JSON.stringify(req.body)+"123456")
+    
     const email=req.body.email;
     const password=req.body.password;
+    // const data=await ExpenseUser.create({ email:email, password:password});
+
     let user=await ExpenseUser.findOne({where:{email:email}})
     if (user) {
-        res.status(200).json({ user });
+        let pass=await ExpenseUser.findOne({where:{password:password}})
+        if(pass){
+            res.status(200).json({  message: 'User login successfully' });
+            // res.render('dashboard', { message: 'User login successfully' });
+        }else{
+            res.status(401).json({error:"User not authorized"})
+        }
       } else {
         res.status(404).json({ error: "user not found" });
       }
