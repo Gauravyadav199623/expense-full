@@ -3,12 +3,15 @@ const path=require('path');
 const express=require('express');
 const bodyParser=require('body-parser');
 const sequelize = require('./util/database');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const ExpenseUser=require('./models/user');
 const ExpenseItem=require('./models/expenses');
 var cors=require('cors')
 const bcrypt = require('bcrypt');
+const Expense = require('./models/expenses');
+const User = require('./models/user');
 app.use(cors())
 
 app.use(bodyParser.json({ extended: false }));
@@ -87,6 +90,10 @@ app.delete('/expense/delete-expense/:id',async(req,res,next)=>{
     await expense.destroy()
     res.status(200).json({message:'Expense Deleted Successfully'})
 })
+
+ExpenseUser.hasMany(ExpenseItem);
+ExpenseItem.belongsTo(ExpenseUser)
+
 
 
 sequelize
