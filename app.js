@@ -24,9 +24,10 @@ app.post('/post-expense', async(req,res,next)=>{
     const password=req.body.password; 
     bcrypt.hash(password,saltRounds, async(err,hash)=>{
 
-        const data=await ExpenseUser.create({name:name, email:email, password:password});
+        const data=await ExpenseUser.create({name:name, email:email, password:hash});
         // const userEmail = await ExpenseUser.findOne({ where: { userEmail: email } });
         // if(!userEmail){
+        // const data=await ExpenseUser.create({name:name, email:email, password:password});
         //     res.status(201).json({newUser:data})
         // }else{
         //     res.status(404).json({error:"USER Already exist"})
@@ -35,6 +36,8 @@ app.post('/post-expense', async(req,res,next)=>{
         // res.redirect('/login')
     })
 })
+
+
 app.post('/login',async(req,res,next)=>{
     console.log(JSON.stringify(req.body)+"123456")
     
