@@ -29,6 +29,8 @@ async function displayOnScreen(){
         .get(`http://localhost:3000/expense/get-expenses`,{headers:{"Authorization":token}});
         console.log(JSON.stringify(res.data)+"inget");
         userList.innerHTML='';
+        leaderBoardUl.innerHTML=''
+        let TAmount=0
         
         const decodedToken=parseJwt(token)
         console.log(decodedToken);
@@ -41,7 +43,9 @@ async function displayOnScreen(){
 
         res.data.allExpenses.forEach(item => {
             const li=document.createElement('li')
+            TAmount+=item.amount
             li.appendChild(document.createTextNode(`Expense: $${item.amount}- ${item.description}- ${item.category}`));
+            
             
 
 
@@ -64,6 +68,9 @@ async function displayOnScreen(){
             console.log(token)
             
         });
+        const li=document.createElement('li')
+        li.appendChild(document.createTextNode(`Total Amount $${TAmount}`))
+        userList.appendChild(li);
         
     }catch(err){
         console.log(err)
@@ -204,40 +211,38 @@ async function premiumFunction(e){
 }
 
 function leaderBoardSection(){
-          
-        var leaderBoardBtn = document.createElement("button");   // Create a <button> element
-        var text = document.createTextNode("leader Board");  // Create a text node
-        leaderBoardBtn.appendChild(text);   // Append the text to <button>            
-        leaderBoardBtn.id = "newButton";
-        leaderBoardBtn.className = "btn btn-outline-info btn-sm";
-        // Append the button to the body of the document
-        document.body.appendChild(leaderBoardBtn);
+    
+    var leaderBoardBtn = document.getElementById("newButton");
+    if (!leaderBoardBtn) {
+      
+      leaderBoardBtn = document.createElement("button");
+      var text = document.createTextNode("Leader Board");
+      leaderBoardBtn.appendChild(text);
+      leaderBoardBtn.id = "newButton";
+      leaderBoardBtn.className = "btn btn-outline-info";
+      document.body.appendChild(leaderBoardBtn);
+    }
 
-        leaderBoardBtn.addEventListener('click',async()=>{
-            console.log('hi')
-            const token=localStorage.getItem('token')
-            const usersOnLeaderBoard= await axios.get('http://localhost:3000/premium/leaderBoard',{headers:{"Authorization":token}})
-            
-            console.log(usersOnLeaderBoard.data,'kkkkkkkkkkkkkkkkkk')
-           
+    leaderBoardBtn.addEventListener('click',async()=>{
+        console.log('hi')
+        const token=localStorage.getItem('token')
+        const usersOnLeaderBoard= await axios.get('http://localhost:3000/premium/leaderBoard',{headers:{"Authorization":token}})
 
-            let leadUser=document.getElementById('leaderBoardUl')
-            leadUser.innerHTML+='<h1>Leader Board2</h1>'
-            usersOnLeaderBoard.data.forEach(user => {
-                leadUser.innerHTML += `<li>Name - ${user.name} -- Total Expenses - ${user.totalCost}</li>`
-              });
-        })
-
-
-        var br = document.createElement("br");
-        document.body.appendChild(br);
+        console.log(usersOnLeaderBoard.data,'kkkkkkkkkkkkkkkkkk')
+       
         
+        let leadUser=document.getElementById('leaderBoardUl')
+        leadUser.innerHTML=""
+        leadUser.innerHTML+='<h1>Leader Board</h1>'
+        usersOnLeaderBoard.data.forEach(user => {
+            leadUser.innerHTML += `<li>Name - ${user.name} -- Total Expenses - ${user.totalExpense}</li>`
+          });
+    })
 
-        var heading = document.createElement("h1");
-        var text = document.createTextNode("Leader Board");
-        heading.appendChild(text); 
-        document.body.appendChild(heading);
 
+    var br = document.createElement("br");
+    document.body.appendChild(br);
+    
 }
 
 
