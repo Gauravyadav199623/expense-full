@@ -1,16 +1,43 @@
+
+
 const myForm = document.querySelector('#my-form');
 const expenseAmount = document.querySelector('#amount');
 const description = document.querySelector('#description');
 const category = document.querySelector('#category');
 const userList = document.querySelector('#users');
+const premiumBtn = document.querySelector('#rzpUl');
+const leaderBoardUl = document.querySelector('#leaderBoardUl');
 
+
+
+
+function parseJwt (token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+}
 
 async function displayOnScreen(){
+   
     try{
+        const token=localStorage.getItem('token')
         const res=await axios
-        .get(`http://localhost:3000/expense/get-expenses`);
+        .get(`http://localhost:3000/expense/get-expenses`,{headers:{"Authorization":token}});
         console.log(JSON.stringify(res.data)+"inget");
         userList.innerHTML='';
+        
+        const decodedToken=parseJwt(token)
+        console.log(decodedToken);
+        isPremiumUser = decodedToken.ispremiumuser;
+        
+        if(isPremiumUser){
+            showPremium()
+            leaderBoardSection()
+            }
 
         res.data.allExpenses.forEach(item => {
             const li=document.createElement('li')
@@ -32,14 +59,29 @@ async function displayOnScreen(){
 
             editBtn.addEventListener('click',()=>edit(item,item.id))
 
+            
             userList.appendChild(li);
-
+            console.log(token)
+            
         });
-
+        
     }catch(err){
         console.log(err)
     }
 }
+
+
+function showPremium(){
+    document.getElementById('rzpUl').style.display = 'none';
+    const p = document.querySelector('p');
+    p.textContent = 'You are a premium user';
+    p.className='para'
+    document.body.appendChild(p);
+}
+
+
+
+
 
 myForm.addEventListener('submit',onSubmit);
 
@@ -60,8 +102,10 @@ async function onSubmit(e){
         e.target.category.value='';
         e.target.description.value='';
 
+        const token=localStorage.getItem('token')
+
         const res= await axios
-        .post(`http://localhost:3000/expense/post-expense`,data);
+        .post(`http://localhost:3000/expense/post-expense`,data,{headers:{"Authorization":token}});
         id=res.data.id;
         console.log(JSON.stringify(res.data)+"inpost");
          return displayOnScreen()
@@ -74,10 +118,11 @@ async function onSubmit(e){
 
 
 async function del(id,li){
+    const token=localStorage.getItem('token')
     li.remove();
     try{
         const res=await axios
-        .delete(`http://localhost:3000/expense/delete-expense/${id}`);
+        .delete(`http://localhost:3000/expense/delete-expense/${id}`,{headers:{"Authorization":token}});
         console.log(res);
         console.log("id="+id);
     }catch(err){
@@ -103,13 +148,97 @@ async function edit(item,id){
         description.value = updatedItem.description;
         category.value = updatedItem.category;
 
-    }
-    catch(err){
+    }catch(err){
         console.log(err);
     }
 } 
+premiumBtn.addEventListener('click',premiumFunction)
+
+async function premiumFunction(e){
+    e.preventDefault();
+    const token=localStorage.getItem('token')
+    const decodedToken=parseJwt(token)
+        console.log(decodedToken);
+        let isPremiumUser = decodedToken.ispremiumuser;
+    
+    // let isPremiumUser = JSON.parse(localStorage.getItem('ispremiumuser'));
+    // isPremiumUser=true
+    if(isPremiumUser){
+        showPremium()
+        // leaderBoardSection()
+    }
+    const response=await axios.get('http://localhost:3000/purchase/premiummembership',{headers:{"Authorization":token}});
+    console.log(response);
+    var options=
+    {
+        "key":response.data.key_id, //enter the key id generated from the dashboard(unique identifier of the company)
+        "order_id":response.data.order.id, //for one time payment
+        //this handler function will handel the success payment
+        "handler":async function(response){
+            const res=await axios.post('http://localhost:3000/purchase/updatetransactionstatus',{
+                order_id:options.order_id,
+                payment_id:response.razorpay_payment_id,
+            },{headers:{"Authorization":token}})
+
+            alert('You are a Premium User Now')
+            console.log(res.data,'<<<<<<<<<<<<<<<<<<<<res.data')
+            
+            showPremium()
+            localStorage.setItem('token',res.data.token)
+            
+            
+            leaderBoardSection()
+        
+            // displayOnScreen()
+        
+
+        }
+    };
+    const rzp1= new Razorpay(options);
+    rzp1.open();
+
+    rzp1.on('payment.failed', function(response){
+        console.log(response);
+        alert('Something went wrong')
+    })
+}
+
+function leaderBoardSection(){
+          
+        var leaderBoardBtn = document.createElement("button");   // Create a <button> element
+        var text = document.createTextNode("leader Board");  // Create a text node
+        leaderBoardBtn.appendChild(text);   // Append the text to <button>            
+        leaderBoardBtn.id = "newButton";
+        leaderBoardBtn.className = "btn btn-outline-info btn-sm";
+        // Append the button to the body of the document
+        document.body.appendChild(leaderBoardBtn);
+
+        leaderBoardBtn.addEventListener('click',async()=>{
+            console.log('hi')
+            const token=localStorage.getItem('token')
+            const usersOnLeaderBoard= await axios.get('http://localhost:3000/premium/leaderBoard',{headers:{"Authorization":token}})
+            
+            console.log(usersOnLeaderBoard.data,'kkkkkkkkkkkkkkkkkk')
+           
+
+            let leadUser=document.getElementById('leaderBoardUl')
+            leadUser.innerHTML+='<h1>Leader Board2</h1>'
+            usersOnLeaderBoard.data.forEach(user => {
+                leadUser.innerHTML += `<li>Name - ${user.name} -- Total Expenses - ${user.totalCost}</li>`
+              });
+        })
 
 
+        var br = document.createElement("br");
+        document.body.appendChild(br);
+        
+
+        var heading = document.createElement("h1");
+        var text = document.createTextNode("Leader Board");
+        heading.appendChild(text); 
+        document.body.appendChild(heading);
+
+}
 
 
 displayOnScreen()
