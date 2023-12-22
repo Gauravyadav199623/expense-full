@@ -6,11 +6,16 @@ console.log('hello premium');
 
 const getUser=async(req,res,next)=>{
     try{
-        const users=await User.findAll()
-        const expenses=await Expense.findAll()
+        const users=await User.findAll({
+            attributes:['id','name']
+        })
+        const expenses=await Expense.findAll({
+            attributes:['userId',[sequelize.fn('sum',sequelize.col('expense.amount')),'totalCost']],
+            group:['userId']
+        })
         const individualSum={}
         console.log(expenses,'expensesssssssssssssssssss')
-        // console.log(users,'userssssssssssssssssssssss')
+        console.log(users,'userssssssssssssssssssssss')
         expenses.forEach(expense => {
             console.log(expense.amount)
             if(individualSum[expense.userId]){
