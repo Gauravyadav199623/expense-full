@@ -1,3 +1,5 @@
+
+
 const loginForm=document.querySelector('#loginForm');
 const messageElement = document.querySelector('#message')
 
@@ -25,17 +27,20 @@ async function onSubmit(e){
         const res = await axios.post('http://localhost:3000/login', data);
         if (res.status === 200) {
             messageElement.innerText = res.data.message;
+            messageElement.className = 'message-success';
+            localStorage.setItem('token',res.data.token)
+            window.location.href = '/frontend/add-expense.html';
         }
     } catch (error) {
         if (error.response) {
-            // The request was made and the server responded with a status code that falls out of the range of 2xx
             messageElement.innerText = error.response.data.message;
+            messageElement.className = 'message-error';
         } else if (error.request) {
-            // The request was made but no response was received
             messageElement.innerText = 'No response from server';
+            messageElement.className = 'message-error';
         } else {
-            // Something happened in setting up the request that triggered an Error
             messageElement.innerText = 'Error in setting up the request';
+            messageElement.className = 'message-error';
         }
     }
 
