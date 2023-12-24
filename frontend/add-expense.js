@@ -216,12 +216,40 @@ function leaderBoardSection(){
     if (!leaderBoardBtn) {
       
       leaderBoardBtn = document.createElement("button");
-      var text = document.createTextNode("Leader Board");
+      let text = document.createTextNode("Leader Board");
       leaderBoardBtn.appendChild(text);
       leaderBoardBtn.id = "newButton";
       leaderBoardBtn.className = "btn btn-outline-info";
       document.body.appendChild(leaderBoardBtn);
+      
+      tableBtn=document.createElement('button')
+      let textTable=document.createTextNode('Expenses Table')
+      tableBtn.appendChild(textTable)
+      tableBtn.id='showTable';
+      tableBtn.className='btn btn-outline-secondary'
+      document.body.appendChild(tableBtn);
+
+
+
+      
+      // Create the table and add it to the body
+      var table = document.createElement('table');
+      table.id = 'expensesTable';
+      table.style.width = '100%';
+      table.style.display = 'none';  // Initially hide the table
+      table.innerHTML = `
+          <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Income</th>
+              <th>Expense</th>
+          </tr>
+      `;
+      document.body.appendChild(table);
     }
+
+    
 
     leaderBoardBtn.addEventListener('click',async()=>{
         console.log('hi')
@@ -237,13 +265,54 @@ function leaderBoardSection(){
         usersOnLeaderBoard.data.forEach(user => {
             leadUser.innerHTML += `<li>Name - ${user.name} -- Total Expenses - ${user.totalExpense}</li>`
           });
+
+          document.getElementById('showTable').addEventListener('click', function() {
+            document.getElementById('expensesTable').style.display = 'block';  // Show the table
+        });
     })
+    document.getElementById('showTable').addEventListener('click', async function() {
+        // Show the table
+        document.getElementById('expensesTable').style.display = 'block';
+    
+        // Call your function that fetches the data
+        const data = await axios.get(`http://localhost:3000/expense/get-expenses`);
+    
+        // Get the table element from your HTML
+        const table = document.getElementById('expensesTable');
+    
+        // Clear out the existing table data
+        while (table.rows.length > 1) {
+            table.deleteRow(1);
+        }
+    
+        // Add a new row for each item in your data
+        data.forEach(item => {
+            const row = table.insertRow();
+            const dateCell = row.insertCell();
+            const descCell = row.insertCell();
+            const catCell = row.insertCell();
+            const incomeCell = row.insertCell();
+            const expenseCell = row.insertCell();
+    
+            // Fill the cells with data
+            dateCell.textContent = item.date;
+            descCell.textContent = item.description;
+            catCell.textContent = item.category;
+            incomeCell.textContent = item.income;
+            expenseCell.textContent = item.expense;
+        });
+    });
 
 
     var br = document.createElement("br");
     document.body.appendChild(br);
     
 }
+
+
+
+
+
 
 
 displayOnScreen()
