@@ -235,16 +235,20 @@ function leaderBoardSection(){
       // Create the table and add it to the body
       var table = document.createElement('table');
       table.id = 'expensesTable';
+      table.className="table table-striped table-hover table-bordered align-middle"
+      
+    
       table.style.width = '100%';
       table.style.display = 'none';  // Initially hide the table
       table.innerHTML = `
-          <tr>
+        
+
+            <tr class="table-primary">
               <th>Date</th>
               <th>Description</th>
               <th>Category</th>
-              <th>Income</th>
               <th>Expense</th>
-          </tr>
+            </tr>
       `;
       document.body.appendChild(table);
     }
@@ -275,7 +279,10 @@ function leaderBoardSection(){
         document.getElementById('expensesTable').style.display = 'block';
     
         // Call your function that fetches the data
-        const data = await axios.get(`http://localhost:3000/expense/get-expenses`);
+        const token=localStorage.getItem('token')
+        const data = await axios.get(`http://localhost:3000/expense/get-expenses`,{headers:{"Authorization":token}});
+
+        console.log(data)
     
         // Get the table element from your HTML
         const table = document.getElementById('expensesTable');
@@ -286,20 +293,26 @@ function leaderBoardSection(){
         }
     
         // Add a new row for each item in your data
-        data.forEach(item => {
+        data.data.allExpenses.forEach(item => {
             const row = table.insertRow();
             const dateCell = row.insertCell();
             const descCell = row.insertCell();
             const catCell = row.insertCell();
-            const incomeCell = row.insertCell();
             const expenseCell = row.insertCell();
+
+
+            const date = new Date(item.createdAt);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;  // Months are 0-based in JavaScript
+            const day = date.getDate();
+            const formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+
     
             // Fill the cells with data
-            dateCell.textContent = item.date;
+            dateCell.textContent = formattedDate;
             descCell.textContent = item.description;
             catCell.textContent = item.category;
-            incomeCell.textContent = item.income;
-            expenseCell.textContent = item.expense;
+            expenseCell.textContent = item.amount;
         });
     });
 
