@@ -7,6 +7,7 @@ const category = document.querySelector('#category');
 const userList = document.querySelector('#users');
 const premiumBtn = document.querySelector('#rzpUl');
 const leaderBoardUl = document.querySelector('#leaderBoardUl');
+const downloadBtn = document.querySelector('#downloadBtn');
 
 
 
@@ -21,59 +22,80 @@ function parseJwt (token) {
     return JSON.parse(jsonPayload);
 }
 
-async function displayOnScreen(){
-   
-    try{
-        const token=localStorage.getItem('token')
-        const res=await axios
-        .get(`http://localhost:3000/expense/get-expenses`,{headers:{"Authorization":token}});
-        console.log(JSON.stringify(res.data)+"inget");
-        userList.innerHTML='';
-        leaderBoardUl.innerHTML=''
-        let TAmount=0
-        
-        const decodedToken=parseJwt(token)
-        console.log(decodedToken);
-        isPremiumUser = decodedToken.ispremiumuser;
-        
-        if(isPremiumUser){
-            showPremium()
-            leaderBoardSection()
-            }
+const list_element = document.getElementById('list');
+const pagination_element = document.getElementById('pagination');
 
-        res.data.allExpenses.forEach(item => {
-            const li=document.createElement('li')
-            TAmount+=item.amount
-            li.appendChild(document.createTextNode(`Expense: $${item.amount}- ${item.description}- ${item.category}`));
-            
-            
+let current_page = 1;
+let rows = 5;
 
+function DisplayList(items, wrapper, rows_per_page, page) {
+    wrapper.innerHTML = '';
+    page--;
 
-            var deleteBtn=document.createElement('button');
-            deleteBtn.className='btn btn-outline-danger btn-sm'
-            deleteBtn.appendChild(document.createTextNode('Delete'))
-            li.appendChild(deleteBtn);
+    let start = rows_per_page * page;
+    let end = start + rows_per_page;
+    let paginatedItems = items.slice(start, end);
 
-            deleteBtn.addEventListener('click',()=>del(item.id,li))
+    for (let i = 0; i < paginatedItems.length; i++) {
+        let item = paginatedItems[i];
 
-            var editBtn=document.createElement('button');
-            editBtn.className='btn btn-outline-info btn-sm float-right'
-            editBtn.appendChild(document.createTextNode('Edit'));
-            li.appendChild(editBtn)
+        // Create your list item here and append it to the wrapper
+        const li = document.createElement('li');
+        li.appendChild(document.createTextNode(`Expense: $${item.amount}- ${item.description}- ${item.category}`));
 
-            editBtn.addEventListener('click',()=>edit(item,item.id))
+        var deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn btn-outline-danger btn-sm';
+        deleteBtn.appendChild(document.createTextNode('Delete'));
+        li.appendChild(deleteBtn);
 
-            
-            userList.appendChild(li);
-            console.log(token)
-            
-        });
-        const li=document.createElement('li')
-        li.appendChild(document.createTextNode(`Total Amount $${TAmount}`))
-        userList.appendChild(li);
-        
-    }catch(err){
-        console.log(err)
+        deleteBtn.addEventListener('click', () => del(item.id, li));
+
+        var editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-outline-info btn-sm float-right';
+        editBtn.appendChild(document.createTextNode('Edit'));
+        li.appendChild(editBtn);
+
+        editBtn.addEventListener('click', () => edit(item, item.id));
+
+        wrapper.appendChild(li);
+    }
+}
+
+function SetupPagination(items, wrapper, rows_per_page) {
+    wrapper.innerHTML = '';
+
+    let page_count = Math.ceil(items.length / rows_per_page);
+    for (let i = 1; i < page_count + 1; i++) {
+        let btn = PaginationButton(i, items);
+        wrapper.appendChild(btn);
+    }
+}
+
+function PaginationButton(page, items) {
+    let button = document.createElement('button');
+    button.innerText = page;
+
+    if (current_page == page) button.classList.add('active');
+
+    button.addEventListener('click', function () {
+        current_page = page;
+        DisplayList(items, list_element, rows, current_page);
+        SetupPagination(items, pagination_element, rows);
+    });
+
+    return button;
+}
+
+async function displayOnScreen() {
+    try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`http://localhost:3000/expense/get-expenses`, { headers: { "Authorization": token } });
+
+        DisplayList(res.data.allExpenses, list_element, rows, current_page);
+        SetupPagination(res.data.allExpenses, pagination_element, rows);
+
+    } catch (err) {
+        console.log(err);
     }
 }
 
@@ -242,7 +264,6 @@ function leaderBoardSection(){
       table.style.display = 'none';  // Initially hide the table
       table.innerHTML = `
         
-
             <tr class="table-primary">
               <th>Date</th>
               <th>Description</th>
@@ -270,16 +291,13 @@ function leaderBoardSection(){
             leadUser.innerHTML += `<li>Name - ${user.name} -- Total Expenses - ${user.totalExpense}</li>`
           });
 
-          document.getElementById('showTable').addEventListener('click', function() {
-            document.getElementById('expensesTable').style.display = 'block';  // Show the table
-        });
     })
     document.getElementById('showTable').addEventListener('click', async function() {
         // Show the table
         document.getElementById('expensesTable').style.display = 'block';
     
         // Call your function that fetches the data
-        const token=localStorage.getItem('token')
+        const token=localStorage.getItem('token')//but why we need token
         const data = await axios.get(`http://localhost:3000/expense/get-expenses`,{headers:{"Authorization":token}});
 
         console.log(data)
@@ -322,7 +340,45 @@ function leaderBoardSection(){
     
 }
 
+downloadBtn.addEventListener('click',download)
+async function download(){
+    try {
+        const token=localStorage.getItem('token')
+        const response=await axios.get('http://localhost:3000/download',{headers:{"Authorization":token}})
+        console.log(response,'download Response');
+        if(response.status===201){
 
+            var a=document.createElement('a')
+            a.href=response.data.fileURL;
+            a.download='myexpense.csv';
+            a.click()
+            const now = new Date();
+
+            // Format the date and time in a user-friendly format
+            const dateTimeString = now.toLocaleString();
+
+            // Create a new list item
+           // Create a new anchor element for the file link
+           const fileLink = document.createElement('a');
+           fileLink.href = response.data.fileURL;
+           fileLink.textContent = `myexpense${a}`;
+
+           // Create a new list item
+           const listItem = document.createElement('li');
+           listItem.textContent = ` downloaded on ${dateTimeString}`;
+
+           // Append the file link to the list item
+           listItem.prepend(fileLink);
+
+           const downloadList = document.getElementById('downloadList');
+           downloadList.appendChild(listItem);
+        }else{
+            throw new Error(response.data.message)
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
 
 
 
