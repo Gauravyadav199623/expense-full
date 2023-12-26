@@ -4,8 +4,47 @@ const User=require('../models/user')
 const Expense=require('../models/expenses')
 const sequelize=require('../util/database')
 
+// const AWS=require('aws-sdk')
+const S3Services=require('../services/S3services')
+const UserServices=require('../services/userservices')
 
-exports.postExpense=async(req,res,next)=>{
+
+
+
+// Express.js middleware function to handle a request to download expenses
+const downloadExpense=async(req,res,next)=>{
+    try {
+        // Get the expenses for the current user
+        const expenses=await UserServices.getExpenses(req);
+        console.log(expenses,'<<<<<<<<<<<<<<<<<');
+
+        // Convert the expenses to a JSON string
+        const stringifiedExpenses=JSON.stringify(expenses);
+
+        // Generate a file name based on the user's ID and the current date
+        const userId=req.user.id;
+        const fileName=`Expense${userId}/${new Date()}.txt`;
+        //chrome doesn't know how to handel the txt file by itself so it download it
+
+        // Call the uploadToS3 function to upload the stringified expenses to S3
+        // Await the promise returned by uploadToS3 to get the URL of the uploaded file
+        const fileURL= await S3Services.uploadToS3(stringifiedExpenses,fileName);
+         //uploadToS3 return promise thats the only reason that await works
+
+        console.log(fileURL)
+
+        // Send a JSON response back to the client with the URL of the file
+        res.status(201).json({fileURL:fileURL,success:true});
+    } catch (err) {
+        // If there's an error, log it and send a JSON response back to the client with an error message
+        console.log(err);
+        res.status(500).json({fileURL:'', success:false, err:err})
+    }
+};
+
+
+
+const postExpense=async(req,res,next)=>{
     var t=await sequelize.transaction()//?it roll back the post request if a error occur
 //*In Sequelize, a transaction is a set of database operations that are executed as a single unit of work. If all operations within the transaction succeed, the transaction is committed and all changes made within the transaction are permanently saved in the database. If any operation within the transaction fails, the transaction is rolled back, and all changes made within the transaction are discarded.
 //By grouping related operations together into a single transaction, you can ensure that your database remains in a consistent state even when errors occur.
@@ -36,7 +75,7 @@ exports.postExpense=async(req,res,next)=>{
 }
 
 
-exports.getExpenses=async(req,res,next)=>{
+const getExpenses=async(req,res,next)=>{
     try{
         const expenses=await Expense.findAll({where:{userId:req.user.id}});
         
@@ -48,7 +87,7 @@ exports.getExpenses=async(req,res,next)=>{
     }
 }
 
-exports.deleteExpense=async(req,res,next)=>{
+const deleteExpense=async(req,res,next)=>{
     let t=await sequelize.transaction()
     try{
         const id=req.params.id;
@@ -78,4 +117,11 @@ exports.deleteExpense=async(req,res,next)=>{
         console.log(err);
         res.status(500).json({ error: err.toString() });
     }
+}
+
+module.exports={
+    postExpense,
+    getExpenses,
+    deleteExpense,
+    downloadExpense
 }
