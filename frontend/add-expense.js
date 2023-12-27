@@ -8,6 +8,9 @@ const userList = document.querySelector('#users');
 const premiumBtn = document.querySelector('#rzpUl');
 const leaderBoardUl = document.querySelector('#leaderBoardUl');
 const downloadBtn = document.querySelector('#downloadBtn');
+const list_element=document.getElementById('list')
+const pagination_element=document.getElementById('pagination')
+const rowsSelect = document.getElementById('rows');
 
 
 
@@ -22,25 +25,22 @@ function parseJwt (token) {
     return JSON.parse(jsonPayload);
 }
 
-const list_element = document.getElementById('list');
-const pagination_element = document.getElementById('pagination');
+let current_page=1
+let rows= parseInt(rowsSelect.value)
 
-let current_page = 1;
-let rows = 5;
 
-function DisplayList(items, wrapper, rows_per_page, page) {
-    wrapper.innerHTML = '';
+function DisplayList(items,wrapper,rows_per_page,page){
+    wrapper.innerHTML=''
     page--;
 
-    let start = rows_per_page * page;
-    let end = start + rows_per_page;
-    let paginatedItems = items.slice(start, end);
+    let start=rows_per_page*page
+    let end=start+rows_per_page
+    let paginatedItems=items.slice(start,end)
 
-    for (let i = 0; i < paginatedItems.length; i++) {
-        let item = paginatedItems[i];
-
-        // Create your list item here and append it to the wrapper
-        const li = document.createElement('li');
+    for(let i=0;i<paginatedItems.length;i++)
+    {
+        let item=paginatedItems[i]
+        const li=document.createElement('li');
         li.appendChild(document.createTextNode(`Expense: $${item.amount}- ${item.description}- ${item.category}`));
 
         var deleteBtn = document.createElement('button');
@@ -57,45 +57,71 @@ function DisplayList(items, wrapper, rows_per_page, page) {
 
         editBtn.addEventListener('click', () => edit(item, item.id));
 
-        wrapper.appendChild(li);
+        wrapper.appendChild(li)
     }
 }
 
-function SetupPagination(items, wrapper, rows_per_page) {
-    wrapper.innerHTML = '';
+function SetupPagination(items,wrapper,rows_per_page){
+    wrapper.innerHTML='';
 
-    let page_count = Math.ceil(items.length / rows_per_page);
-    for (let i = 1; i < page_count + 1; i++) {
-        let btn = PaginationButton(i, items);
-        wrapper.appendChild(btn);
+    let page_count=Math.ceil(items.length/rows_per_page)
+    for(let i=1;i<page_count+1;i++)
+    {
+        let btn=paginationButton(i,items)
+        wrapper.appendChild(btn)
     }
 }
+function paginationButton(page,items){
+    let button=document.createElement('button')
+    button.innerHTML=page;
 
-function PaginationButton(page, items) {
-    let button = document.createElement('button');
-    button.innerText = page;
+    if(current_page==page) button.classList.add('active');
+    current_page=page;
 
-    if (current_page == page) button.classList.add('active');
+    button.addEventListener('click',function(){
+        current_page=page
+        DisplayList(items,list_element,rows,current_page);
+        SetupPagination(items,pagination_element,rows);
 
-    button.addEventListener('click', function () {
-        current_page = page;
-        DisplayList(items, list_element, rows, current_page);
-        SetupPagination(items, pagination_element, rows);
     });
+    return button
 
-    return button;
 }
 
-async function displayOnScreen() {
-    try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`http://localhost:3000/expense/get-expenses`, { headers: { "Authorization": token } });
+async function displayOnScreen(){
+   
+    try{
+        const token=localStorage.getItem('token')
+        const res=await axios
+        .get(`http://localhost:3000/expense/get-expenses`,{headers:{"Authorization":token}});
+        console.log(JSON.stringify(res.data)+"inget");
+        userList.innerHTML='';
+        leaderBoardUl.innerHTML=''
+        
+        
+        const decodedToken=parseJwt(token)
+        console.log(decodedToken);
+        isPremiumUser = decodedToken.ispremiumuser;
+        
+        if(isPremiumUser){
+            showPremium()
+            leaderBoardSection()
+            }
 
-        DisplayList(res.data.allExpenses, list_element, rows, current_page);
-        SetupPagination(res.data.allExpenses, pagination_element, rows);
-
-    } catch (err) {
-        console.log(err);
+            
+            DisplayList(res.data.allExpenses, list_element, rows, current_page);
+            SetupPagination(res.data.allExpenses, pagination_element, rows);
+            
+            rowsSelect.addEventListener('change', function() {
+                rows = parseInt(this.value);
+                current_page=1
+                DisplayList(res.data.allExpenses, list_element, rows, current_page);
+                SetupPagination(res.data.allExpenses, pagination_element, rows);
+              });
+      
+        
+    }catch(err){
+        console.log(err)
     }
 }
 
