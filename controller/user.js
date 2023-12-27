@@ -65,6 +65,7 @@ const userLogin=async(req,res,next)=>{
           console.log(err);
       }
 }
+
 module.exports={
     generateAccessToken,
     postAddUser,
