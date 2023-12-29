@@ -17,7 +17,7 @@ exports.forgotPassword = async (req, res, next) => {
     try {
         const { email } = req.body;
         const user = await User.findOne({ where: { email } });
-        console.log(user,user.dataValues.id)
+        // console.log(user,user.dataValues.id)
         if (user) {
             const id = uuid.v4();
             await user.createForgotPassword({ id, active: true })

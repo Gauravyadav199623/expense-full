@@ -18,7 +18,7 @@ const downloadExpense=async(req,res,next)=>{
     try {
         // Get the expenses for the current user
         const expenses=await UserServices.getExpenses(req);
-        console.log(expenses,'<<<<<<<<<<<<<<<<<');
+        // console.log(expenses,'<<<<<<<<<<<<<<<<<');
 
         // Convert the expenses to a JSON string
         const stringifiedExpenses=JSON.stringify(expenses);
@@ -94,7 +94,7 @@ const deleteExpense=async(req,res,next)=>{
     let t=await sequelize.transaction()
     try{
         const id=req.params.id;
-        console.log(id)
+        // console.log(id)
         const expense=await Expense.findByPk(id)
         if(!expense){
             return res.status(404).json({ error: 'expense not found' });
@@ -103,7 +103,7 @@ const deleteExpense=async(req,res,next)=>{
         console.log(delItem);
         if(delItem){
             const totalExpense=Number(req.user.totalExpense)-Number(expense.amount)
-            console.log(totalExpense);
+            // console.log(totalExpense);
         
             await User.update({totalExpense:totalExpense},{
             where:{id:req.user.id},

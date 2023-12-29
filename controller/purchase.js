@@ -19,7 +19,7 @@ const purchasepremium=async(req,res)=>{
         const amount=2500;//its in paisa i think
         rzp.orders.create({amount, currency:"INR"}, (err,order)=>{
             if(err){
-                console.log("888888888888888888888888888")
+                // console.log("888888888888888888888888888")
                 throw new Error(JSON.stringify(err));
             }
             req.user.createOrder({orderid: order.id, status:'PENDING'})

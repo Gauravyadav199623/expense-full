@@ -11,7 +11,7 @@ const generateAccessToken=(id,name,ispremiumuser)=>{
 
 
 const postAddUser=async(req,res,next)=>{
-    console.log(req.body)
+    // console.log(req.body)
     const name=req.body.name;
     const email=req.body.email;
     const password=req.body.password; 
@@ -36,7 +36,7 @@ const postAddUser=async(req,res,next)=>{
 
 
 const userLogin=async(req,res,next)=>{
-    console.log(JSON.stringify(req.body)+"123456")
+    // console.log(JSON.stringify(req.body)+"123456")
     
     const email=req.body.email;
     const password=req.body.password;
