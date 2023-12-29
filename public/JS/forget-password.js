@@ -10,7 +10,7 @@ async function onSubmit(e){
     const email=e.target.email.value
     console.log(email)
     try {
-        const res=await axios.post('http://localhost:3000/password/forget-password',{email})
+        const res=await axios.post('http://43.205.127.17:3000/password/forget-password',{email})
         console.log(res);
         if(res.status === 202){
             document.body.innerHTML += '<div style="color:red;">Mail Successful sent </div>'

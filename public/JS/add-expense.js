@@ -96,7 +96,7 @@ async function displayOnScreen(){
     try{
         const token=localStorage.getItem('token')
         const res=await axios
-        .get(`http://localhost:3000/expense/get-expenses`,{headers:{"Authorization":token}});
+        .get(`http://43.205.127.17:3000/expense/get-expenses`,{headers:{"Authorization":token}});
         console.log(JSON.stringify(res.data)+"inget");
         userList.innerHTML='';
         leaderBoardUl.innerHTML=''
@@ -163,7 +163,7 @@ async function onSubmit(e){
         const token=localStorage.getItem('token')
 
         const res= await axios
-        .post(`http://localhost:3000/expense/post-expense`,data,{headers:{"Authorization":token}});
+        .post(`http://43.205.127.17:3000/expense/post-expense`,data,{headers:{"Authorization":token}});
         id=res.data.id;
         console.log(JSON.stringify(res.data)+"inpost");
          return displayOnScreen()
@@ -180,7 +180,7 @@ async function del(id,li){
     li.remove();
     try{
         const res=await axios
-        .delete(`http://localhost:3000/expense/delete-expense/${id}`,{headers:{"Authorization":token}});
+        .delete(`http://43.205.127.17:3000/expense/delete-expense/${id}`,{headers:{"Authorization":token}});
         console.log(res);
         console.log("id="+id);
     }catch(err){
@@ -225,7 +225,7 @@ async function premiumFunction(e){
         showPremium()
         // leaderBoardSection()
     }
-    const response=await axios.get('http://localhost:3000/purchase/premiummembership',{headers:{"Authorization":token}});
+    const response=await axios.get('http://43.205.127.17:3000/purchase/premiummembership',{headers:{"Authorization":token}});
     console.log(response);
     var options=
     {
@@ -233,7 +233,7 @@ async function premiumFunction(e){
         "order_id":response.data.order.id, //for one time payment
         //this handler function will handel the success payment
         "handler":async function(response){
-            const res=await axios.post('http://localhost:3000/purchase/updatetransactionstatus',{
+            const res=await axios.post('http://43.205.127.17:3000/purchase/updatetransactionstatus',{
                 order_id:options.order_id,
                 payment_id:response.razorpay_payment_id,
             },{headers:{"Authorization":token}})
@@ -308,7 +308,7 @@ function leaderBoardSection(){
     leaderBoardBtn.addEventListener('click',async()=>{
         console.log('hi')
         const token=localStorage.getItem('token')
-        const usersOnLeaderBoard= await axios.get('http://localhost:3000/premium/leaderBoard',{headers:{"Authorization":token}})
+        const usersOnLeaderBoard= await axios.get('http://43.205.127.17:3000/premium/leaderBoard',{headers:{"Authorization":token}})
 
         console.log(usersOnLeaderBoard.data,'kkkkkkkkkkkkkkkkkk')
        
@@ -327,7 +327,7 @@ function leaderBoardSection(){
     
         // Call your function that fetches the data
         const token=localStorage.getItem('token')//but why we need token
-        const data = await axios.get(`http://localhost:3000/expense/get-expenses`,{headers:{"Authorization":token}});
+        const data = await axios.get(`http://43.205.127.17:3000/expense/get-expenses`,{headers:{"Authorization":token}});
 
         console.log(data)
     
@@ -373,7 +373,7 @@ downloadBtn.addEventListener('click',download)
 async function download(){
     try {
         const token=localStorage.getItem('token')
-        const response=await axios.get('http://localhost:3000/download',{headers:{"Authorization":token}})
+        const response=await axios.get('http://43.205.127.17:3000/download',{headers:{"Authorization":token}})
         console.log(response,'download Response');
         if(response.status===201){
 
