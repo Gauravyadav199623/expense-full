@@ -21,7 +21,7 @@ async function onSubmit(e){
     e.target.email.value='';
     e.target.password.value='';
 
-    const res=await axios.post('add-user',data)
+    const res=await axios.post('http://localhost:3000/add-user',data)
     console.log(data)
 
 }
