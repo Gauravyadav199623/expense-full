@@ -7,6 +7,8 @@ const sequelize = require('./util/database');
 const helmet=require('helmet');
 const morgan=require('morgan');
 
+require('dotenv').config();
+
 
 
 const app = express();
@@ -58,12 +60,14 @@ User.hasMany(DownloadFile);
 DownloadFile.belongsTo(User);
 
 
+
+const PORT=process.env.PORT
 sequelize
   .sync()
   // .sync({force:true})
   .then(result => {
     // console.log(result);
-    app.listen(3000);
+    app.listen(PORT);
   })
   .catch(err => {
     console.log(err);

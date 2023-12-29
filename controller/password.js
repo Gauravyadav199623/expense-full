@@ -26,7 +26,7 @@ exports.forgotPassword = async (req, res, next) => {
                 });
 
             const sender = {
-                email: 'gauravyadav199623@gmail.com', 
+                email: 'iamkkashyap@gmail.com', 
                 name: 'gaurav' 
             };
 

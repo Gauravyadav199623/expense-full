@@ -8,6 +8,8 @@ const sequelize=require('../util/database')
 const S3Services=require('../services/S3services')
 const UserServices=require('../services/userservices')
 
+const DownloadFile=require('../models/downloaded-files')
+
 
 
 
@@ -30,11 +32,12 @@ const downloadExpense=async(req,res,next)=>{
         // Await the promise returned by uploadToS3 to get the URL of the uploaded file
         const fileURL= await S3Services.uploadToS3(stringifiedExpenses,fileName);
          //uploadToS3 return promise thats the only reason that await works
+         const downloadedFile=await req.user.createDownloadFile({fileURL:fileURL})
 
         console.log(fileURL)
 
         // Send a JSON response back to the client with the URL of the file
-        res.status(201).json({fileURL:fileURL,success:true});
+        res.status(201).json({fileURL:fileURL,downloadedFile:downloadedFile,success:true});
     } catch (err) {
         // If there's an error, log it and send a JSON response back to the client with an error message
         console.log(err);
