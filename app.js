@@ -24,26 +24,30 @@ const expensesRoutes=require('./routes/expenses')
 const purchaseRoutes = require('./routes/purchase');
 const premiumRoutes=require('./routes/premium')
 const PasswordRoutes=require('./routes/password')
+const mainPageRouter=require('./routes/mainpage')
 
 const accessLogStream=fs.createWriteStream(path.join(__dirname, 'access.log'),{flags:'a'});
 
 
 var cors=require('cors')
 
+// app.use(express.static(path.join(__dirname, 'public')))
 app.use(helmet())
 app.use(cors())
+app.use(express.json())
 app.use(morgan('combined',{stream:accessLogStream}))
+app.use(express.urlencoded({extended:false}));
+app.use(express.static('public'));
+
 
 
 app.use(bodyParser.json({ extended: false }));
-// app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(mainPageRouter)
 app.use(userRoutes)
 app.use(expensesRoutes)
 app.use('/purchase',purchaseRoutes)
 app.use('/premium',premiumRoutes)
 app.use('/password',PasswordRoutes)
-
 
 
 User.hasMany(ExpenseItem);
