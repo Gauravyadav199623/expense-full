@@ -19,7 +19,7 @@ router.get('/sign-Up',(req,res,next)=>{
     res.sendFile("sign-Up.html",{root:'views'})
 })
 router.get('/add-expense.html',(req,res,next)=>{
-    res.sendFile('add-Expense.html',{root:'views'})
+    res.sendFile('add-expense.html',{root:'views'})
 })
 
 
