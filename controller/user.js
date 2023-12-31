@@ -65,8 +65,16 @@ const userLogin=async(req,res,next)=>{
           console.log(err);
       }
 }
+const loginpage=(req,res,next)=>{
+    try {
+        res.sendFile('login.html',{root:'views'})
+    } catch (err) {
+        console.log(err);
+    }
+}
 
 module.exports={
+    loginpage,
     generateAccessToken,
     postAddUser,
     userLogin

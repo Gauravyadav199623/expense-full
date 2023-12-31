@@ -24,7 +24,7 @@ async function onSubmit(e){
     e.target.password.value='';
 
     try {
-        const res = await axios.post('http://43.205.127.17:3000/login', data);
+        const res = await axios.post('login', data);
         if (res.status === 200) {
             messageElement.innerText = res.data.message;
             messageElement.className = 'message-success';

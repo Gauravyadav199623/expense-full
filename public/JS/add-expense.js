@@ -96,14 +96,14 @@ async function displayOnScreen(){
     try{
         const token=localStorage.getItem('token')
         const res=await axios
-        .get(`http://43.205.127.17:3000/expense/get-expenses`,{headers:{"Authorization":token}});
+        .get(`expense/get-expenses`,{headers:{"Authorization":token}});
         console.log(JSON.stringify(res.data)+"inget");
         userList.innerHTML='';
         leaderBoardUl.innerHTML=''
         
         
         const decodedToken=parseJwt(token)
-        console.log(decodedToken);
+        // console.log(decodedToken);
         isPremiumUser = decodedToken.ispremiumuser;
         
         if(isPremiumUser){
@@ -155,7 +155,7 @@ async function onSubmit(e){
             category,
             description
         }
-        console.log(JSON.stringify(data)+"data!!!")
+        // console.log(JSON.stringify(data)+"data!!!")
         e.target.amount.value='';
         e.target.category.value='';
         e.target.description.value='';
@@ -163,9 +163,9 @@ async function onSubmit(e){
         const token=localStorage.getItem('token')
 
         const res= await axios
-        .post(`http://43.205.127.17:3000/expense/post-expense`,data,{headers:{"Authorization":token}});
+        .post(`expense/post-expense`,data,{headers:{"Authorization":token}});
         id=res.data.id;
-        console.log(JSON.stringify(res.data)+"inpost");
+        // console.log(JSON.stringify(res.data)+"inpost");
          return displayOnScreen()
 
     }
@@ -180,9 +180,9 @@ async function del(id,li){
     li.remove();
     try{
         const res=await axios
-        .delete(`http://43.205.127.17:3000/expense/delete-expense/${id}`,{headers:{"Authorization":token}});
-        console.log(res);
-        console.log("id="+id);
+        .delete(`expense/delete-expense/${id}`,{headers:{"Authorization":token}});
+        // console.log(res);
+        // console.log("id="+id);
     }catch(err){
         console.log(err)
     }
@@ -199,8 +199,8 @@ async function edit(item,id){
     try{
         const res=await axios
         .put(`http://crudcrud.com/api/d712e69e2fdc4cb9b117c5ce26161699/practice/${id}`,updatedItem);
-        console.log(JSON.stringify(res.data)+"???")
-        console.log(updatedItem+"inside");
+        // console.log(JSON.stringify(res.data)+"???")
+        // console.log(updatedItem+"inside");
         
         amount.value = updatedItem.amount;
         description.value = updatedItem.description;
@@ -216,7 +216,7 @@ async function premiumFunction(e){
     e.preventDefault();
     const token=localStorage.getItem('token')
     const decodedToken=parseJwt(token)
-        console.log(decodedToken);
+        // console.log(decodedToken);
         let isPremiumUser = decodedToken.ispremiumuser;
     
     // let isPremiumUser = JSON.parse(localStorage.getItem('ispremiumuser'));
@@ -225,15 +225,15 @@ async function premiumFunction(e){
         showPremium()
         // leaderBoardSection()
     }
-    const response=await axios.get('http://43.205.127.17:3000/purchase/premiummembership',{headers:{"Authorization":token}});
-    console.log(response);
+    const response=await axios.get('purchase/premiummembership',{headers:{"Authorization":token}});
+    // console.log(response);
     var options=
     {
         "key":response.data.key_id, //enter the key id generated from the dashboard(unique identifier of the company)
         "order_id":response.data.order.id, //for one time payment
         //this handler function will handel the success payment
         "handler":async function(response){
-            const res=await axios.post('http://43.205.127.17:3000/purchase/updatetransactionstatus',{
+            const res=await axios.post('purchase/updatetransactionstatus',{
                 order_id:options.order_id,
                 payment_id:response.razorpay_payment_id,
             },{headers:{"Authorization":token}})
@@ -306,11 +306,10 @@ function leaderBoardSection(){
     
 
     leaderBoardBtn.addEventListener('click',async()=>{
-        console.log('hi')
         const token=localStorage.getItem('token')
-        const usersOnLeaderBoard= await axios.get('http://43.205.127.17:3000/premium/leaderBoard',{headers:{"Authorization":token}})
+        const usersOnLeaderBoard= await axios.get('premium/leaderBoard',{headers:{"Authorization":token}})
 
-        console.log(usersOnLeaderBoard.data,'kkkkkkkkkkkkkkkkkk')
+        // console.log(usersOnLeaderBoard.data,'kkkkkkkkkkkkkkkkkk')
        
         
         let leadUser=document.getElementById('leaderBoardUl')
@@ -327,9 +326,9 @@ function leaderBoardSection(){
     
         // Call your function that fetches the data
         const token=localStorage.getItem('token')//but why we need token
-        const data = await axios.get(`http://43.205.127.17:3000/expense/get-expenses`,{headers:{"Authorization":token}});
+        const data = await axios.get(`expense/get-expenses`,{headers:{"Authorization":token}});
 
-        console.log(data)
+        // console.log(data)
     
         // Get the table element from your HTML
         const table = document.getElementById('expensesTable');
@@ -373,7 +372,7 @@ downloadBtn.addEventListener('click',download)
 async function download(){
     try {
         const token=localStorage.getItem('token')
-        const response=await axios.get('http://43.205.127.17:3000/download',{headers:{"Authorization":token}})
+        const response=await axios.get('download',{headers:{"Authorization":token}})
         console.log(response,'download Response');
         if(response.status===201){
 

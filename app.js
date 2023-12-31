@@ -32,7 +32,7 @@ const accessLogStream=fs.createWriteStream(path.join(__dirname, 'access.log'),{f
 var cors=require('cors')
 
 // app.use(express.static(path.join(__dirname, 'public')))
-app.use(helmet())
+// app.use(helmet())
 app.use(cors())
 app.use(express.json())
 app.use(morgan('combined',{stream:accessLogStream}))
@@ -42,6 +42,7 @@ app.use(express.static('public'));
 
 
 app.use(bodyParser.json({ extended: false }));
+
 app.use(mainPageRouter)
 app.use(userRoutes)
 app.use(expensesRoutes)
