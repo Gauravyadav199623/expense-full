@@ -2,7 +2,7 @@ const User=require('../models/user')
 const Expense=require('../models/expenses')
 const sequelize=require('../util/database')
 
-console.log('hello premium');
+// console.log('hello premium');
 
 const getUser=async(req,res,next)=>{
     try{

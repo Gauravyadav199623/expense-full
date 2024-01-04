@@ -18,7 +18,7 @@ router.get("/login",(req,res,next)=>{
 router.get('/sign-Up',(req,res,next)=>{
     res.sendFile("sign-Up.html",{root:'views'})
 })
-router.get('/add-expense.html',(req,res,next)=>{
+router.get('/add-expense',(req,res,next)=>{
     res.sendFile('add-expense.html',{root:'views'})
 })
 

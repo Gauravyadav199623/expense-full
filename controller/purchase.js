@@ -9,7 +9,7 @@ require('dotenv').config();
 
 const purchasepremium=async(req,res)=>{
     try{
-        console.log("77777777777777777777777777777777777")
+        // console.log("77777777777777777777777777777777777")
         var rzp=new Razorpay({  //!THIS WILL TELL THE RAZOR PAY WHICH COMPANY IS TRYING TO CREATE AN ORDER
             key_id: process.env.RAZORPAY_KEY_ID,
             // key_id: 'rzp_test_sj4XofEAVoh8GW',

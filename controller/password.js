@@ -1,121 +1,175 @@
 const User = require('../models/user');
 const uuid = require('uuid');
-const Sib = require('sib-api-v3-sdk');
+const jwt=require("jsonwebtoken")
+
 const sequelize = require('../util/database');
 const bcrypt=require('bcrypt');
 const ForgotPassword = require('../models/forget-password');
+var nodemailer = require('nodemailer');
+const NODE_MAILER_EMAIL=process.env.NODE_MAILER_EMAIL
+const NODE_MAILER_PASSWORD=process.env.NODE_MAILER_PASSWORD
+
+const WEBSITE=process.env.WEBSITE
+const secret=process.env.TOKEN_SECRET
 
 require('dotenv').config();
 
-const client = Sib.ApiClient.instance;
-const apiKey = client.authentications['api-key'];
-apiKey.apiKey = process.env.API_KEY;
+exports.forgotPasswordGet=(req,res)=>{
+    res.sendFile("forgotpassword.html",{root:"views"})
+}
 
-const tranEmailApi = new Sib.TransactionalEmailsApi();
 
-exports.forgotPassword = async (req, res, next) => {
+
+exports.forgotPasswordPost=async(req,res)=>{
+
+    const email=req.body.email;
+  
+    
+ 
+     try {
+      //finding that user present or not present
+         const oldUser=await User.findOne({
+             where:{
+                 email:email,
+             }
+         })
+         //if not present then 
+         if (!oldUser){
+             return res.status(404).json({"message": "User not found"})
+         }
+         //if present then
+        const id=uuid.v4()
+        //create a in db using uuid.v4() for unique id
+         await oldUser.createForgotPassword({
+            id:id,
+            active:true
+            // expiresby:new Date()
+         })
+         //also creating a jwt token for more secure authentication
+         const token=jwt.sign({email:oldUser.email ,id:oldUser.id},secret,{expiresIn:"10m"})
+         //sending the link with uuid and token 
+         const link=`${WEBSITE}/resetpassword/${id}/${token}`
+
+         //createing a transporter using nodemailer
+         var transporter = nodemailer.createTransport({
+             service: 'outlook',
+           
+             auth: {
+                 user: NODE_MAILER_EMAIL,//user Email
+                 pass: NODE_MAILER_PASSWORD //user Email password
+             }
+           });
+           
+           //creating a option for interface of the mail
+           var mailOptions = {
+             from: process.env.NODE_MAILER_EMAIL,
+             to: oldUser.email,
+             subject: 'Reset Password',
+             
+             text:" reset your password",
+             html:`<p> reset your password</p>
+             <a href=${link}>Reset password</a>`,
+           };
+           
+           //sending mail
+           transporter.sendMail(mailOptions, function(error, info){
+             if (error) {
+               console.log(error);
+             } else {
+               console.log('Email sent: ' + info.response);
+             }
+           })
+        
+           //sending response of successful
+        res.status(200).send(link)
+ 
+ 
+     } catch (error) {
+         console.log(error)
+         res.status(500).json({"message": "Internal server error"})
+         
+     }
+ 
+ 
+ 
+ }
+
+
+
+
+ exports.resetPasswordGet = async (req, res) => {
+    const { id, token } = req.params;
+
     try {
-        const { email } = req.body;
-        const user = await User.findOne({ where: { email } });
-        // console.log(user,user.dataValues.id)
-        if (user) {
-            const id = uuid.v4();
-            await user.createForgotPassword({ id, active: true })
-                .catch(err => {
-                    throw new Error('Failed to create forgot password: ' + err.message);
-                });
+        const forgotPassword = await ForgotPassword.findOne({
+            where: {
+                id: id,
+                active: true,
+            }
+        });
 
-            const sender = {
-                email: 'iamkkashyap@gmail.com', 
-                name: 'gaurav' 
-            };
+        if (!forgotPassword) {
+            return res.status(401).send(`<html>
+                <h1>Link expired</h1>
+                <a href="/">home</a>
+            </html>`);
+        }
 
-            const receivers = [
-                {
-                    email: email
-                }
-            ];
-
-            tranEmailApi.sendTransacEmail({
-                sender,
-                to: receivers,
-                subject: 'testing123',
-                textContent:`Follow the link to reset the password `,
-                htmlContent: `<h1>click on the link below to reset the password</h1><br>
-                <a href="http://16.171.196.132:3000/password/resetpassword/${id}">Reset your Password</a>`
-            })
-            .then((response) => {
-                return res.status(response.status).json({ message: 'Link to reset password sent to your mail ', success: true });
-            })
-            .catch((error) => {
-                console.log(error);
+        try {
+            const verify = jwt.verify(token, secret);
+            await forgotPassword.update({
+                active: false
             });
 
-        } else {
-            throw new Error("User Doesn't exist");
+            res.status(200).sendFile("changepassword.html", { root: "views" });
+        } catch (tokenError) {
+            await forgotPassword.update({
+                active: false
+            });
+            return res.status(401).json({ message: "expired token" });
         }
-    } catch (err) {
-        console.log(err);
-        return res.json({ message: err.message, success: false });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 };
 
-exports.resetPassword= async(req,res)=>{
-    try {
-        const id=req.param.id;
-        const forgetPassword= await ForgotPassword.findOne({where:{id:id}})
-        const result=await forgetPassword.update({
-            active:false
-        });
-        res.status(201).send(`
-            <html>
-            <body>
-            <div class="center">
-            <div class="container">
-            <form onsubmit="onsubmit(event)">
-                <div class="data">
-                    <label for="new-password">Enter New password:</label>
-                    <input type="password" name="new-password" id="pass" required>
-                </div>
-                <div class="btn">
-                    <div class="inner"></div>
-                    <button type="submit">reset password</button>
-                </div>
-            </form>
-            </div>
-            </div>
-            </body>
-            </html>
-        `)
-        res.end()
-    
-    } catch (err) {
-        console.log(err)
-    }
-}
-exports.updatePassword=async(req,res)=>{
-    try {
-        const newPassword=req.body.pass;
-        const{resetPasswordId}=req.param;
-        const resetPasswordRequest= await ForgotPassword.findOne({where:{id:resetPasswordId}})
 
-        const user=await User.findOne({where:{id:resetPasswordRequest.userId}})
-        if(user){
-            let saltRound=10;
-            bcrypt.hash(newPassword,saltRound,async(err,hash)=>{
-                if(err){
-                    console.log(err)
-                    throw new Error(err)
-                }
-                await User.update({password:hash},{where:{id:user.id}})
-                console.log(user.id)
-                res.status(201).json({message:'password change successfully'})
-            })
 
-        }else{
-            return res.status(404).json({message:'user not found',success:false})
+exports.resetPasswordPost = async (req, res) => {
+    const { id, token } = req.params;
+  
+    try {
+        const forgotPassword = await ForgotPassword.findOne({ where: { id } });
+  
+        if (!forgotPassword) {
+            return res.status(404).json({ message: "Reset entry not found" });
+        }
+  
+        const oldUser = await User.findOne({ where: { id: forgotPassword.UserId } });
+  
+        if (!oldUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+  
+        try {
+            const verify = jwt.verify(token, secret);
+            const { password, confirmPassword } = req.body;
+  
+            if (password !== confirmPassword) {
+                return res.status(400).json({ message: "Password and confirmPassword do not match" });
+            }
+  
+            const hashedPassword = await bcrypt.hash(password, 10);
+  
+            await User.update({ password: hashedPassword }, { where: { id: oldUser.id } });
+  
+            res.status(200).json({ message: "Password reset successfully" });
+        } catch (tokenError) {
+            console.error("Token Verification Error:", tokenError);
+            return res.status(401).json({ message: "Token verification failed" });
         }
     } catch (error) {
-        console.log(error)
+        console.error("Server Error:", error);
+        res.status(500).json({ error: error.message });
     }
-}
+};

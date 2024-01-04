@@ -1,16 +1,22 @@
-const express=require('express')
+const express=require("express")
 const router=express.Router()
 
-const passwordController=require('../controller/password')
+const forgotPasswordController=require("../controller/password")
+
+router.get("/forgot-password",forgotPasswordController.forgotPasswordGet)
+
+router.post("/forgot-password",forgotPasswordController.forgotPasswordPost)
+
+router.get("/resetpassword/:id/:token",forgotPasswordController.resetPasswordGet);
+
+router.post("/resetpassword/:id/:token",forgotPasswordController.resetPasswordPost );
+  
 
 
-router.post('/forget-password',passwordController.forgotPassword)
-
-
-router.get('/resetPassword/:id', passwordController.resetPassword);
-router.post('/updatePassword/:resetPasswordId', passwordController.updatePassword);
 
 
 
 
-module.exports=router;
+
+
+module.exports=router

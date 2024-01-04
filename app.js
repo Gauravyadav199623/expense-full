@@ -48,7 +48,7 @@ app.use(userRoutes)
 app.use(expensesRoutes)
 app.use('/purchase',purchaseRoutes)
 app.use('/premium',premiumRoutes)
-app.use('/password',PasswordRoutes)
+app.use(PasswordRoutes)
 
 
 User.hasMany(ExpenseItem);

@@ -1,23 +1,28 @@
-const form=document.querySelector('#forget-password-form')
+const form = document.getElementById("form");
 
-
-
-form.addEventListener('submit',onSubmit)
-
-async function onSubmit(e){
+form.addEventListener("submit",async (e)=>{
     e.preventDefault();
-
-    const email=e.target.email.value
-    console.log(email)
-    try {
-        const res=await axios.post('http://43.205.127.17:3000/password/forget-password',{email})
-        console.log(res);
-        if(res.status === 202){
-            document.body.innerHTML += '<div style="color:red;">Mail Successful sent </div>'
-        } else {
-            throw new Error('Something went wrong!!!')
+  try {
+        const email=document.getElementById("email")
+        const data={
+            email: email.value
         }
-    } catch (err) {
-        console.log(err)
-    }
-}
+        const response=await axios.post("/forgot-password",data) 
+        if (response.status==200){
+            alert("link sent successfully please check your mail..")
+        }
+    
+    } catch (error) {
+    console.log(error)
+    alert("error")}
+   
+})
+
+// const togglebtn=document.getElementById("toggle")
+// const body=document.body
+// const option=document.getElementsByClassName("option")[0];
+// togglebtn.addEventListener("click",()=>{
+//   togglebtn.classList.toggle("ri-xrp-fill")
+ 
+//     option.classList.toggle("active");
+// })

@@ -13,6 +13,7 @@
     }
     .leaderBoardUl{
         list-style-type: none;
+        width:100%;
     }
     .para{
         color: green;
@@ -60,36 +61,22 @@
         
         <ul id="users"></ul>
         <main>
+            <div class="list" id="list"></div>
+            <div class="pagenumbers" id="pagination"></div>
             <label for="rows" >Expenses per page:</label>
-            <select id="rows" class="form-select"  aria-label=".form-select-sm example">
+            <select id="rows" class="form-select-sm"  aria-label=".form-select-sm example">
             <option value="3">3</option>
             <option value="5">5</option>
             <option value="10">10</option>
             <option value="15">15</option>
             </select>
-            <div class="list" id="list"></div>
-            <div class="pagenumbers" id="pagination"></div>
         </main>
-    </div>
-    <div>
-        <button id="downloadBtn" class="btn btn-outline-secondary"  type="submit" value ="submit">Download</button>
-        <ul id="downloadList"></ul>
     </div>
     <div>
         <ul id="leaderBoardUl"></ul>
     </div>
-    <!-- <h1>Day to Day Expenses</h1>
-    <button id="showTable">Show Table</button>
-    <table id="expensesTable" style="width:100%">
-        <tr>
-            <th>Date</th><br>
-            <th>Description</th><br>
-            <th>Category</th><br>
-            <th>Income</th><br>
-            <th>Expense</th><br>
-        </tr>
-       
-    </table> -->
+    
+    
     <!-- <h2>Yearly Report</h2>
     <table id="yearlyReportTable">
     
@@ -98,6 +85,22 @@
     <table id="notesTable">
         
     </table> -->
+    <div>
+        <button id="downloadBtn" class="btn btn-outline-secondary"  type="submit" value ="submit">Download</button>
+        <ul id="downloadList"></ul>
+    </div>
+    <!-- <table id="expensesTable">
+        <thead>
+          <tr>
+            <th>Amount</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody id="expenseList">
+        </tbody>
+      </table> -->
     
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.0/axios.min.js"></script>

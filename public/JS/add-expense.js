@@ -13,7 +13,6 @@ const pagination_element=document.getElementById('pagination')
 const rowsSelect = document.getElementById('rows');
 
 
-// require('dotenv').config();
 
 
 
@@ -31,7 +30,7 @@ function parseJwt (token) {
 let current_page=1
 let rows= parseInt(rowsSelect.value)
 
-
+// Function to display a list of items on a page
 function DisplayList(items,wrapper,rows_per_page,page){
     wrapper.innerHTML=''
     page--;
@@ -40,45 +39,118 @@ function DisplayList(items,wrapper,rows_per_page,page){
     let end=start+rows_per_page
     let paginatedItems=items.slice(start,end)
 
+    // Create the table and add it to the wrapper
+    var table = document.createElement('table');
+    table.id = 'expensesTable';
+    table.className = "table table-striped table-hover table-bordered align-middle";
+    table.style.width = '100%';
+
+    // Add table header
+    table.innerHTML = `
+        <div class="container-fluid"> 
+        <tr class="table-primary">
+            <th>Date</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Expense</th>
+            <th></th>
+            <th></th>
+        </tr>
+        </div>
+    `;
+
+ // Loop through the items and add each one to the table
     for(let i=0;i<paginatedItems.length;i++)
     {
         let item=paginatedItems[i]
-        const li=document.createElement('li');
-        li.appendChild(document.createTextNode(`Expense: $${item.amount}- ${item.description}- ${item.category}`));
+        // Create a new row
+        const row = table.insertRow();
 
-        var deleteBtn = document.createElement('button');
-        deleteBtn.className = 'btn btn-outline-danger btn-sm';
-        deleteBtn.appendChild(document.createTextNode('Delete'));
-        li.appendChild(deleteBtn);
+        // Create cells in the row
+        const dateCell = row.insertCell();
+        const descCell = row.insertCell();
+        const catCell = row.insertCell();
+        const expenseCell = row.insertCell();
+        const deleteCell = row.insertCell();
+        const editCell = row.insertCell();
 
-        deleteBtn.addEventListener('click', () => del(item.id, li));
+        // Fill the cells with data
+        dateCell.textContent = item.date;
+        descCell.textContent = item.description;
+        catCell.textContent = item.category;
+        expenseCell.textContent = item.amount;
 
-        var editBtn = document.createElement('button');
-        editBtn.className = 'btn btn-outline-info btn-sm float-right';
-        editBtn.appendChild(document.createTextNode('Edit'));
-        li.appendChild(editBtn);
 
-        editBtn.addEventListener('click', () => edit(item, item.id));
+      // Create delete button
+      var deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn btn-outline-danger btn-sm';
+      deleteBtn.appendChild(document.createTextNode('Delete'));
+      deleteBtn.addEventListener('click', () => del(item.id, row));
+      deleteCell.appendChild(deleteBtn);
+        // remove this before demo
+      var editBtn = document.createElement('button');
+      editBtn.className = 'btn btn-outline-info btn-sm float-right';
+      editBtn.appendChild(document.createTextNode('Edit'));
+      editBtn.addEventListener('click', () => edit(item, item.id));
+      editCell.appendChild(editBtn);
 
-        wrapper.appendChild(li)
     }
+    wrapper.appendChild(table)
 }
-
+// Function to set up the pagination for the list
 function SetupPagination(items,wrapper,rows_per_page){
     wrapper.innerHTML='';
 
-    let page_count=Math.ceil(items.length/rows_per_page)
+    let page_count=Math.ceil(items.length/rows_per_page)// Calculate the number of page
+
+    // Create and add the "Previous" button
+    let previousBtn = document.createElement('button');
+    previousBtn.innerHTML = '<<';
+    previousBtn.addEventListener('click', function() {
+        previousPage(items);
+    });
+    wrapper.appendChild(previousBtn);
+
+    
+    
     for(let i=1;i<page_count+1;i++)
     {
-        let btn=paginationButton(i,items)
+        let btn=paginationButton(i,items)// Create a button for each page
         wrapper.appendChild(btn)
     }
+    // Create and add the "Next" button
+    let nextBtn = document.createElement('button');
+    nextBtn.innerHTML = '>>';
+    nextBtn.addEventListener('click', function() {
+        nextPage(items);
+    });
+    wrapper.appendChild(nextBtn);
 }
+// Function to go to the next page
+function nextPage(items) {
+    if (current_page < Math.ceil(items.length / rows)) {
+        current_page++;
+        DisplayList(items, list_element, rows, current_page);
+        SetupPagination(items, pagination_element, rows);
+    }
+}
+
+// Function to go to the previous page
+function previousPage(items) {
+    if (current_page > 1) {
+        current_page--;
+        DisplayList(items, list_element, rows, current_page);
+        SetupPagination(items, pagination_element, rows);
+    }
+}
+
+// Function to create a button for a specific page
 function paginationButton(page,items){
     let button=document.createElement('button')
     button.innerHTML=page;
 
-    if(current_page==page) button.classList.add('active');
+    if(current_page==page) button.classList.add('active');// If the current page is the same as the page number, add the 'active' class to the button
+    
     current_page=page;
 
     button.addEventListener('click',function(){
@@ -273,34 +345,34 @@ function leaderBoardSection(){
       leaderBoardBtn.className = "btn btn-outline-info";
       document.body.appendChild(leaderBoardBtn);
       
-      tableBtn=document.createElement('button')
-      let textTable=document.createTextNode('Expenses Table')
-      tableBtn.appendChild(textTable)
-      tableBtn.id='showTable';
-      tableBtn.className='btn btn-outline-secondary'
-      document.body.appendChild(tableBtn);
+    //   downloadBtn=document.createElement('button')
+    //   let download=document.createTextNode('Download')
+    //   downloadBtn.appendChild(download)
+    //   downloadBtn.id='showTable';
+    //   downloadBtn.className='btn btn-outline-secondary'
+    //   document.body.appendChild(downloadBtn);
 
 
 
       
       // Create the table and add it to the body
-      var table = document.createElement('table');
-      table.id = 'expensesTable';
-      table.className="table table-striped table-hover table-bordered align-middle"
+    //   var table = document.createElement('table');
+    //   table.id = 'expensesTable';
+    //   table.className="table table-striped table-hover table-bordered align-middle"
       
     
-      table.style.width = '100%';
-      table.style.display = 'none';  // Initially hide the table
-      table.innerHTML = `
+    //   table.style.width = '100%';
+    //   table.style.display = 'none';  // Initially hide the table
+    //   table.innerHTML = `
         
-            <tr class="table-primary">
-              <th>Date</th>
-              <th>Description</th>
-              <th>Category</th>
-              <th>Expense</th>
-            </tr>
-      `;
-      document.body.appendChild(table);
+    //         <tr class="table-primary">
+    //           <th>Date</th>
+    //           <th>Description</th>
+    //           <th>Category</th>
+    //           <th>Expense</th>
+    //         </tr>
+    //   `;
+    //   document.body.appendChild(table);
     }
 
     
@@ -320,51 +392,51 @@ function leaderBoardSection(){
           });
 
     })
-    document.getElementById('showTable').addEventListener('click', async function() {
-        // Show the table
-        document.getElementById('expensesTable').style.display = 'block';
+    // document.getElementById('showTable').addEventListener('click', async function() {
+    //     // Show the table
+    //     document.getElementById('expensesTable').style.display = 'block';
     
-        // Call your function that fetches the data
-        const token=localStorage.getItem('token')//but why we need token
-        const data = await axios.get(`expense/get-expenses`,{headers:{"Authorization":token}});
+    //     // Call your function that fetches the data
+    //     const token=localStorage.getItem('token')//but why we need token
+    //     const data = await axios.get(`expense/get-expenses`,{headers:{"Authorization":token}});
 
-        // console.log(data)
+    //     // console.log(data)
     
-        // Get the table element from your HTML
-        const table = document.getElementById('expensesTable');
+    //     // Get the table element from your HTML
+    //     const table = document.getElementById('expensesTable');
     
-        // Clear out the existing table data
-        while (table.rows.length > 1) {
-            table.deleteRow(1);
-        }
+    //     // Clear out the existing table data
+    //     while (table.rows.length > 1) {
+    //         table.deleteRow(1);
+    //     }
     
-        // Add a new row for each item in your data
-        data.data.allExpenses.forEach(item => {
-            const row = table.insertRow();
-            const dateCell = row.insertCell();
-            const descCell = row.insertCell();
-            const catCell = row.insertCell();
-            const expenseCell = row.insertCell();
+    //     // Add a new row for each item in your data
+    //     data.data.allExpenses.forEach(item => {
+    //         const row = table.insertRow();
+    //         const dateCell = row.insertCell();
+    //         const descCell = row.insertCell();
+    //         const catCell = row.insertCell();
+    //         const expenseCell = row.insertCell();
 
 
-            const date = new Date(item.createdAt);
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1;  // Months are 0-based in JavaScript
-            const day = date.getDate();
-            const formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+    //         const date = new Date(item.createdAt);
+    //         const year = date.getFullYear();
+    //         const month = date.getMonth() + 1;  // Months are 0-based in JavaScript
+    //         const day = date.getDate();
+    //         const formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 
     
-            // Fill the cells with data
-            dateCell.textContent = formattedDate;
-            descCell.textContent = item.description;
-            catCell.textContent = item.category;
-            expenseCell.textContent = item.amount;
-        });
-    });
+    //         // Fill the cells with data
+    //         dateCell.textContent = formattedDate;
+    //         descCell.textContent = item.description;
+    //         catCell.textContent = item.category;
+    //         expenseCell.textContent = item.amount;
+    //     });
+    // });
 
 
-    var br = document.createElement("br");
-    document.body.appendChild(br);
+    // var br = document.createElement("br");
+    // document.body.appendChild(br);
     
 }
 

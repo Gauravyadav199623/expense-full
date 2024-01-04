@@ -29,7 +29,7 @@ async function onSubmit(e){
             messageElement.innerText = res.data.message;
             messageElement.className = 'message-success';
             localStorage.setItem('token',res.data.token)
-            window.location.href = 'add-expense.html';
+            window.location.href = 'add-expense';
         }
     } catch (error) {
         if (error.response) {
