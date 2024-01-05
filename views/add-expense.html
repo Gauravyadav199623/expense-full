@@ -18,14 +18,22 @@
     .para{
         color: green;
     }
+    #reportbtn {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+}
+
     
    
     </style>
 
 </head>
+
 <body>
+    
     <header>
-        <h1>Expence Tracker App</h1>
+        <h1>Expense Tracker App</h1>
       </header>
     <div class="container">
         <form id="my-form">
@@ -75,33 +83,13 @@
     <div>
         <ul id="leaderBoardUl"></ul>
     </div>
-    
-    
-    <!-- <h2>Yearly Report</h2>
-    <table id="yearlyReportTable">
-    
-    </table>
-    <h2>Notes Report 2021</h2>
-    <table id="notesTable">
-        
-    </table> -->
     <div>
-        <button id="downloadBtn" class="btn btn-outline-secondary"  type="submit" value ="submit">Download</button>
         <ul id="downloadList"></ul>
+        <button id="downloadBtn" class="btn btn-outline-secondary"  type="submit" value ="submit">Download</button>
     </div>
-    <!-- <table id="expensesTable">
-        <thead>
-          <tr>
-            <th>Amount</th>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Delete</th>
-          </tr>
-        </thead>
-        <tbody id="expenseList">
-        </tbody>
-      </table> -->
-    
+
+      <button id="reportbtn" class="btn btn-outline-secondary">History</button>
+
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.0/axios.min.js"></script>
     <script src="/JS/add-expense.js"></script>

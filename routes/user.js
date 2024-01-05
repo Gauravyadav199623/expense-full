@@ -21,6 +21,9 @@ router.get('/sign-Up',(req,res,next)=>{
 router.get('/add-expense',(req,res,next)=>{
     res.sendFile('add-expense.html',{root:'views'})
 })
+router.get('/history',(req,res,next)=>{
+    res.sendFile('history.html',{root:'views'})
+})
 
 
 

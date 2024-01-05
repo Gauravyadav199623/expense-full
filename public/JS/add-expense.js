@@ -52,7 +52,7 @@ function DisplayList(items,wrapper,rows_per_page,page){
             <th>Date</th>
             <th>Description</th>
             <th>Category</th>
-            <th>Expense</th>
+            <th>Expense Amount</th>
             <th></th>
             <th></th>
         </tr>
@@ -74,8 +74,14 @@ function DisplayList(items,wrapper,rows_per_page,page){
         const deleteCell = row.insertCell();
         const editCell = row.insertCell();
 
+        const date = new Date(item.createdAt);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;  // Months are 0-based in JavaScript
+        const day = date.getDate();
+        const formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+
         // Fill the cells with data
-        dateCell.textContent = item.date;
+        dateCell.textContent = formattedDate;
         descCell.textContent = item.description;
         catCell.textContent = item.category;
         expenseCell.textContent = item.amount;
@@ -319,7 +325,7 @@ async function premiumFunction(e){
             
             leaderBoardSection()
         
-            // displayOnScreen()
+            displayOnScreen()
         
 
         }
@@ -345,34 +351,6 @@ function leaderBoardSection(){
       leaderBoardBtn.className = "btn btn-outline-info";
       document.body.appendChild(leaderBoardBtn);
       
-    //   downloadBtn=document.createElement('button')
-    //   let download=document.createTextNode('Download')
-    //   downloadBtn.appendChild(download)
-    //   downloadBtn.id='showTable';
-    //   downloadBtn.className='btn btn-outline-secondary'
-    //   document.body.appendChild(downloadBtn);
-
-
-
-      
-      // Create the table and add it to the body
-    //   var table = document.createElement('table');
-    //   table.id = 'expensesTable';
-    //   table.className="table table-striped table-hover table-bordered align-middle"
-      
-    
-    //   table.style.width = '100%';
-    //   table.style.display = 'none';  // Initially hide the table
-    //   table.innerHTML = `
-        
-    //         <tr class="table-primary">
-    //           <th>Date</th>
-    //           <th>Description</th>
-    //           <th>Category</th>
-    //           <th>Expense</th>
-    //         </tr>
-    //   `;
-    //   document.body.appendChild(table);
     }
 
     
@@ -391,91 +369,70 @@ function leaderBoardSection(){
             leadUser.innerHTML += `<li>Name - ${user.name} -- Total Expenses - ${user.totalExpense}</li>`
           });
 
-    })
-    // document.getElementById('showTable').addEventListener('click', async function() {
-    //     // Show the table
-    //     document.getElementById('expensesTable').style.display = 'block';
-    
-    //     // Call your function that fetches the data
-    //     const token=localStorage.getItem('token')//but why we need token
-    //     const data = await axios.get(`expense/get-expenses`,{headers:{"Authorization":token}});
-
-    //     // console.log(data)
-    
-    //     // Get the table element from your HTML
-    //     const table = document.getElementById('expensesTable');
-    
-    //     // Clear out the existing table data
-    //     while (table.rows.length > 1) {
-    //         table.deleteRow(1);
-    //     }
-    
-    //     // Add a new row for each item in your data
-    //     data.data.allExpenses.forEach(item => {
-    //         const row = table.insertRow();
-    //         const dateCell = row.insertCell();
-    //         const descCell = row.insertCell();
-    //         const catCell = row.insertCell();
-    //         const expenseCell = row.insertCell();
-
-
-    //         const date = new Date(item.createdAt);
-    //         const year = date.getFullYear();
-    //         const month = date.getMonth() + 1;  // Months are 0-based in JavaScript
-    //         const day = date.getDate();
-    //         const formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-
-    
-    //         // Fill the cells with data
-    //         dateCell.textContent = formattedDate;
-    //         descCell.textContent = item.description;
-    //         catCell.textContent = item.category;
-    //         expenseCell.textContent = item.amount;
-    //     });
-    // });
-
-
-    // var br = document.createElement("br");
-    // document.body.appendChild(br);
-    
+    })    
 }
 
 downloadBtn.addEventListener('click',download)
-async function download(){
+reportbtn.addEventListener('click',()=>{
     try {
-        const token=localStorage.getItem('token')
-        const response=await axios.get('download',{headers:{"Authorization":token}})
-        console.log(response,'download Response');
-        if(response.status===201){
+        if (!isPremiumUser) {
+            return alert('Not a premium user. Buy premium to avail this option');
+        }
+        window.location.href = 'history';
 
-            var a=document.createElement('a')
-            a.href=response.data.fileURL;
-            a.download='myexpense.csv';
-            a.click()
-            const now = new Date();
+    } catch (error) {
+        console.log(error);
+    }
+})
 
-            // Format the date and time in a user-friendly format
-            const dateTimeString = now.toLocaleString();
+async function download() {
+    try {
+        // Check if the user is a premium user
+        if (!isPremiumUser) {
+            return alert('Not a premium user. Buy premium to avail this option');
+        }
 
-            // Create a new list item
-           // Create a new anchor element for the file link
-           const fileLink = document.createElement('a');
-           fileLink.href = response.data.fileURL;
-           fileLink.textContent = `myexpense${a}`;
+        // Get the token from local storage
+        const token = localStorage.getItem('token');
 
-           // Create a new list item
-           const listItem = document.createElement('li');
-           listItem.textContent = ` downloaded on ${dateTimeString}`;
+        // Make a GET request to download the file
+        const response = await axios.get('download', { headers: { "Authorization": token } });
 
-           // Append the file link to the list item
-           listItem.prepend(fileLink);
+        // Log the response
+        console.log(response, 'download Response');
 
-           const downloadList = document.getElementById('downloadList');
-           downloadList.appendChild(listItem);
-        }else{
-            throw new Error(response.data.message)
+        // Check if the response status is 201 (Created)
+        if (response.status === 201) {
+            // Create a new anchor element for the file link
+            var a = document.createElement('a');
+            a.href = response.data.fileURL;
+            a.download = 'myexpense.csv';
+            a.click();
+
+            // // Get the current date and time
+            // const now = new Date();
+
+            // // Format the date and time in a user-friendly format
+            // const dateTimeString = now.toLocaleString();
+
+            // // Create a new list item
+            // const listItem = document.createElement('li');
+            // listItem.textContent = ` downloaded on ${dateTimeString}`;
+
+            // // Append the file link to the list item
+            // listItem.prepend(a);
+
+            // // Append the list item to the download list
+            // const downloadList = document.getElementById('downloadList');
+            // downloadList.appendChild(listItem);
+
+            
+        } else {
+           
+            throw new Error(response.data.message);
         }
     } catch (err) {
+        // Log any errors
         console.log(err);
     }
 }

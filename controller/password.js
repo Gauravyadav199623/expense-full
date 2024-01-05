@@ -145,7 +145,7 @@ exports.resetPasswordPost = async (req, res) => {
             return res.status(404).json({ message: "Reset entry not found" });
         }
   
-        const oldUser = await User.findOne({ where: { id: forgotPassword.UserId } });
+        const oldUser = await User.findOne({ where: { id: forgotPassword.userId } });
   
         if (!oldUser) {
             return res.status(404).json({ message: "User not found" });
