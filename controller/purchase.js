@@ -1,8 +1,10 @@
+const mongoose=require('mongoose');
 const Razorpay=require('razorpay');
 const Order=require('../models/orders')
+const User=require('../models/user')
 const userController=require('../controller/user')
 
-const jwt = require('jsonwebtoken'); 
+// const jwt = require('jsonwebtoken'); 
 
 require('dotenv').config();
 
@@ -17,18 +19,41 @@ const purchasepremium=async(req,res)=>{
             // key_secret: 'lW4M17knv7HFpbcMrdgveb5s'
         })
         const amount=2500;//its in paisa i think
-        rzp.orders.create({amount, currency:"INR"}, (err,order)=>{
-            if(err){
-                // console.log("888888888888888888888888888")
-                throw new Error(JSON.stringify(err));
+        // rzp.orders.create({amount, currency:"INR"}, (err,order)=>{
+        //     if(err){
+        //         // console.log("888888888888888888888888888")
+        //         throw new Error(JSON.stringify(err));
+        //     }
+        //     req.user.createOrder({orderid: order.id, status:'PENDING'})
+        //     .then(()=>{
+        //         return res.status(201).json({order, key_id:rzp.key_id})//key of the company in which user trying to create an order
+        //     }).catch(err=>{
+        //         throw new Error(err);
+        //     })
+        // })
+        rzp.orders.create({ amount, currency: 'INR' }, async (err, order) => {
+            if (err) {
+              throw new Error(JSON.stringify(err));
             }
-            req.user.createOrder({orderid: order.id, status:'PENDING'})
-            .then(()=>{
-                return res.status(201).json({order, key_id:rzp.key_id})//key of the company in which user trying to create an order
-            }).catch(err=>{
-                throw new Error(err);
-            })
-        })
+      
+            try {
+              // Create an order document associated with the user
+              const createdOrder = await Order.create({
+                orderid: order.id,
+                status: 'PENDING',
+                userId: req.user._id 
+              });
+      
+              // Update the user with the new order (you might need to adjust this based on your user model)
+            //   await User.findByIdAndUpdate(req.user._id, {
+            //     $push: { orders: createdOrder._id }
+            //   });
+      
+              res.status(201).json({ order, key_id: rzp.key_id });
+            } catch (err) {
+              throw new Error(err);
+            }
+          });
     }catch(err){
         console.log(err);
         res.status(403).json({message:'Some thing went wrong', error:err})
@@ -37,16 +62,19 @@ const purchasepremium=async(req,res)=>{
 
 const updateTransactionStatus=async (req,res)=>{
     try {
-        const userId=req.user.id
+        const userId=req.user._id
         const { payment_id, order_id } = req.body;
-        const order = await Order.findOne({ where: { orderid: order_id } });
+        const order = await Order.findOne({ orderid: order_id  });
 
         // Create promises for the updates
-        const orderUpdate = order.update({ paymentid: payment_id, status: 'SUCCESSFUL' });
-        const userUpdate = req.user.update({ ispremiumuser: true });
+         await order.updateOne({ paymentid: payment_id, status: 'SUCCESSFUL' });
+        // const userUpdate = req.user.updateOne({ ispremiumuser: true });
+        await User.findByIdAndUpdate(userId, {
+            $push: { ispremiumuser: true }
+          });
 
         // Use Promise.all to run the updates concurrently(when ever we are calling a promise inside another promise while the promises are not dependent on each other)
-        await Promise.all([orderUpdate, userUpdate]);//mind the square bracket
+        // await Promise.all([orderUpdate, userUpdate]);//mind the square bracket
 
         return res.status(202).json({ success: true, message: "Transaction Successful",token:userController.generateAccessToken(userId,undefined,true) });
     } catch (err) {

@@ -12,6 +12,7 @@ router.post('/add-user',userController.postAddUser )
 
 router.post('/login',userController.userLogin)
 router.get('/views/sign-Up',userController.loginpage)
+
 router.get("/login",(req,res,next)=>{
     res.sendFile("login.html",{root:"views"})
 })

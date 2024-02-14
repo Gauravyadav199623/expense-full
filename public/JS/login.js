@@ -28,7 +28,7 @@ async function onSubmit(e){
         if (res.status === 200) {
             messageElement.innerText = res.data.message;
             messageElement.className = 'message-success';
-            localStorage.setItem('token',res.data.token)
+            localStorage.setItem('token',res.data.token)//!kim
             window.location.href = 'add-expense';
         }
     } catch (error) {

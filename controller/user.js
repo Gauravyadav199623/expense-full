@@ -43,11 +43,11 @@ const userLogin=async(req,res,next)=>{
     // const data=await ExpenseUser.create({ email:email, password:password});
     
     try{
-        let user=await User.findOne({where:{email:email}})
+        let user=await User.findOne({email:email})
         // let userData=user.toJSON()
         // console.log(JSON.stringify(userData)+"user Data");
         if (user){
-            console.log(JSON.stringify(user.dataValues)+"<-User");
+            // console.log(JSON.stringify(user.dataValues)+"<-User");
             bcrypt.compare(password,user.password,(err,result)=>{   //* comparing the encrypted password withe the entered one after converting it too
                 //this kind of encryption only work one way ie we can get back our originally entered value
                 if(result==true){
@@ -72,6 +72,7 @@ const loginpage=(req,res,next)=>{
         console.log(err);
     }
 }
+
 
 module.exports={
     loginpage,

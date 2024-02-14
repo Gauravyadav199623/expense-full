@@ -91,13 +91,13 @@ function DisplayList(items,wrapper,rows_per_page,page){
       var deleteBtn = document.createElement('button');
       deleteBtn.className = 'btn btn-outline-danger btn-sm';
       deleteBtn.appendChild(document.createTextNode('Delete'));
-      deleteBtn.addEventListener('click', () => del(item.id, row));
+      deleteBtn.addEventListener('click', () => del(item._id, row));
       deleteCell.appendChild(deleteBtn);
         // remove this before demo
       var editBtn = document.createElement('button');
       editBtn.className = 'btn btn-outline-info btn-sm float-right';
       editBtn.appendChild(document.createTextNode('Edit'));
-      editBtn.addEventListener('click', () => edit(item, item.id));
+      editBtn.addEventListener('click', () => edit(item, item._id));
       editCell.appendChild(editBtn);
 
     }
@@ -242,7 +242,7 @@ async function onSubmit(e){
 
         const res= await axios
         .post(`expense/post-expense`,data,{headers:{"Authorization":token}});
-        id=res.data.id;
+        id=res.data._id;
         // console.log(JSON.stringify(res.data)+"inpost");
          return displayOnScreen()
 
@@ -260,7 +260,8 @@ async function del(id,li){
         const res=await axios
         .delete(`expense/delete-expense/${id}`,{headers:{"Authorization":token}});
         // console.log(res);
-        // console.log("id="+id);
+        // console.log("id=",id);
+        console.log("Item deleted",res)
     }catch(err){
         console.log(err)
     }

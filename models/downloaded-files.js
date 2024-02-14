@@ -1,17 +1,41 @@
+const mongoose=require('mongoose')
 
-const sequelize=require('../util/database')
-const Sequelize=require('sequelize')
+const Schema = mongoose.Schema;
 
-const DownloadFile=sequelize.define('downloadFile',{
-    id:{
-        type: Sequelize.INTEGER,
-        unique:true,
-        autoIncrement: true,
-        primaryKey:true,
+
+const downloadSchema= new Schema({
+    fileUrl:{
+        type:String,
+        required:true
     },
-    fileURL:{
-        type: Sequelize.STRING,
-        allowNull: false
+    userId:{
+        type:String,
+        required:true
     }
-})
-module.exports=DownloadFile
+},
+{
+  timestamps: true, // this option adds createdAt and updatedAt fields
+}
+)
+module.exports=mongoose.model("Download",downloadSchema)
+
+
+
+
+
+// const sequelize=require('../util/database')
+// const Sequelize=require('sequelize')
+
+// const DownloadFile=sequelize.define('downloadFile',{
+//     id:{
+//         type: Sequelize.INTEGER,
+//         unique:true,
+//         autoIncrement: true,
+//         primaryKey:true,
+//     },
+//     fileURL:{
+//         type: Sequelize.STRING,
+//         allowNull: false
+//     }
+// })
+// module.exports=DownloadFile

@@ -7,17 +7,18 @@ const downloadedFile=require('../models/downloaded-files')
 
 const getUser=async(req,res,next)=>{
     try{
-        const userLeaderBoardDetails=await User.findAll({
-            // attributes:['id','name',[sequelize.fn('sum',sequelize.col('expenses.amount')),'totalCost']],
-            // include:[
-            //     {
-            //         model:Expense,
-            //         attributes:[]
-            //     }
-            // ],
-            // group:['user.id'],
-            order:[['totalExpense','DESC']]
-        })
+        // const userLeaderBoardDetails=await User.find({
+        //     // attributes:['id','name',[sequelize.fn('sum',sequelize.col('expenses.amount')),'totalCost']],
+        //     // include:[
+        //     //     {
+        //     //         model:Expense,
+        //     //         attributes:[]
+        //     //     }
+        //     // ],
+        //     // group:['user.id'],
+        //     order:[['totalExpense','DESC']]
+        // })
+        const userLeaderBoardDetails= await User.find().sort({"totalExpense":-1})
 
         res.status(200).json(userLeaderBoardDetails)
 
@@ -28,7 +29,7 @@ const getUser=async(req,res,next)=>{
 }
 const getPreviousDownload=async(req,res,next)=>{
     try {
-        const list=await downloadedFile.findAll({where:{userId:req.user.id}})
+        const list=await downloadedFile.find({userId:req.user._id})
         // console.log(list,"list")
         res.status(200).json({previousDownloads:list})
     } catch (err) {

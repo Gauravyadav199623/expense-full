@@ -28,7 +28,7 @@ const pagination_element=document.getElementById('pagination')
 
 let current_page=1;
 let rows=5;
-function DisplayList(items,wrapper,rows_per_page,page){
+function DisplayList(items,wrapper,rows_per_page,page){ //DisplayList(list_items, list_element,rows,current_page)
     wrapper.innerHTML='';
     page--;
 
@@ -44,18 +44,18 @@ function DisplayList(items,wrapper,rows_per_page,page){
         item_element.classList.add('item')
         item_element.innerText=item;
 
-        wrapper.appendChild(item_element)
+        wrapper.appendChild(item_element) // item_element wrap or contain in list_element
     }
 
 }
-function SetupPagination(items,wrapper,rows_per_page){
+function SetupPagination(items,wrapper,rows_per_page){ //SetupPagination(list_items,pagination_element,rows)
     wrapper.innerHTML='';
 
     let page_count=Math.ceil(items.length/rows_per_page);
     for(let i=1;i<page_count+1;i++)
     {
        let btn= paginationButton(i,items);
-       wrapper.appendChild(btn)
+       wrapper.appendChild(btn) //btn wrap or contain in pagination_element
     }
 }
 function paginationButton(page,items){

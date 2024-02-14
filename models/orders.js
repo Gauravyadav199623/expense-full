@@ -1,19 +1,47 @@
-const Sequelize=require('sequelize');
-const sequelize = require('../util/database');
+const mongoose=require('mongoose')
 
-//id, name,password,phone,role
+const Schema= mongoose.Schema;
 
-
-const Order=sequelize.define('order',{
-    id:{
-        type:Sequelize.INTEGER,
-        autoIncrement:true,
-        allowNull:false,
-        primaryKey:true
+const OrderSchema=new Schema({
+    paymentid:{
+        type:String,
+        require:true
     },
-    paymentid:Sequelize.STRING,//get after successful payment(ie after we try to do the payment)
-    orderid:Sequelize.STRING, //get from razorpay(initially when order get created)
-    status:Sequelize.STRING //initially pending
+    orderid:{
+        type:String,
+        require:true
+    },
+    status:{
+        type:String,
+        require:true
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+      }
 })
+module.exports=mongoose.model('Order',OrderSchema)
 
-module.exports=Order
+
+
+
+// const Sequelize=require('sequelize');
+// const sequelize = require('../util/database');
+
+// //id, name,password,phone,role
+
+
+// const Order=sequelize.define('order',{
+//     id:{
+//         type:Sequelize.INTEGER,
+//         autoIncrement:true,
+//         allowNull:false,
+//         primaryKey:true
+//     },
+//     paymentid:Sequelize.STRING,//get after successful payment(ie after we try to do the payment)
+//     orderid:Sequelize.STRING, //get from razorpay(initially when order get created)
+//     status:Sequelize.STRING //initially pending
+// })
+
+// module.exports=Order
